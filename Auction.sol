@@ -2,7 +2,13 @@
 
 pragma solidity ^0.8.0;
 
+import "./ProductIdentification.sol"; 
+import "./SampleToken.sol";
+
 contract Auction {
+
+    ProductIdentification public productIdentification;
+    SampleToken public token; 
     
     address payable internal auction_owner;
     uint256 public auction_start;
@@ -16,7 +22,7 @@ contract Auction {
     }
 
     struct  car{
-        string  Brand;
+        uint  Brand;
         string  Rnumber;
     }
     
@@ -38,7 +44,7 @@ contract Auction {
         _;
     }
     
-    function bid() public virtual payable returns (bool) {}
+    function bid(uint _bidValue) public virtual payable returns (bool) {}
     function withdraw() public virtual returns (bool) {}
     function cancel_auction() external virtual returns (bool) {}
     
@@ -50,7 +56,18 @@ contract Auction {
 
 contract MyAuction is Auction {
     
-    constructor (uint _biddingTime, address payable _owner, string memory _brand, string memory _Rnumber) {
+    constructor (uint _biddingTime, 
+                    address payable _owner, 
+                    uint _brand, 
+                    string memory _Rnumber,
+                    address _productIdentificationAddress,
+                    address _tokenAddress) {
+
+        productIdentification = ProductIdentification(_productIdentificationAddress);
+        token = SampleToken(_tokenAddress);
+
+        require(productIdentification.isProductRegistered(_brand));
+
         auction_owner = _owner;
         auction_start = block.timestamp;
         auction_end = auction_start + _biddingTime*1 hours;
@@ -71,11 +88,16 @@ contract MyAuction is Auction {
         
     }
     
-    function bid() public payable an_ongoing_auction override returns (bool) {
+    function bid(uint _bidValue) public payable an_ongoing_auction override returns (bool) {
       
-        require(bids[msg.sender] + msg.value > highestBid,"You can't bid, Make a higher Bid");
+        require(highestBidder != msg.sender, "You can't outbid yourself!");
+
+        require(_bidValue > highestBid, "You can't bid, Make a higher Bid");
+
+        require(token.transferFrom(msg.sender, address(this), _bidValue - bids[msg.sender]), "Token transfer failed.");
+
         highestBidder = msg.sender;
-        highestBid = bids[msg.sender] + msg.value;
+        highestBid = _bidValue;
         bidders.push(msg.sender);
         bids[msg.sender] = highestBid;
         emit BidEvent(highestBidder,  highestBid);
@@ -96,8 +118,11 @@ contract MyAuction is Auction {
         uint amount;
 
         amount = bids[msg.sender];
+        require(amount > 0, "No bid to withdraw.");
         bids[msg.sender] = 0;
-        payable(msg.sender).transfer(amount);
+        
+        require(token.transfer(msg.sender, amount), "Token transfer failed.");
+
         emit WithdrawalEvent(msg.sender, amount);
         return true;
       
@@ -105,16 +130,17 @@ contract MyAuction is Auction {
     
     function destruct_auction() external only_owner returns (bool) {
         
-        require(block.timestamp > auction_end || STATE == auction_state.CANCELLED,"You can't destruct the contract,The auction is still open");
-        for(uint i = 0; i < bidders.length; i++)
-        {
-            assert(bids[bidders[i]] == 0);
+        require(block.timestamp > auction_end || STATE == auction_state.CANCELLED, "You can't destruct the contract, the auction is still open");
+        
+        require(token.transfer(auction_owner, highestBid), "Token transfer to owner failed.");
+
+        for (uint i = 0; i < bidders.length; i++) {
+            if (bids[bidders[i]] > 0 && bidders[i] != highestBidder) {
+                require(token.transfer(bidders[i], bids[bidders[i]]), "Token transfer to bidder failed.");
+            }
         }
 
         selfdestruct(auction_owner);
         return true;
-    
     } 
 }
-
-
