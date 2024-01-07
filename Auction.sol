@@ -44,7 +44,7 @@ contract Auction {
         _;
     }
     
-    function bid(uint _bidValue) public virtual payable returns (bool) {}
+    function bid(uint _bidValue) public virtual returns (bool) {}
     function withdraw() public virtual returns (bool) {}
     function cancel_auction() external virtual returns (bool) {}
     
@@ -88,7 +88,7 @@ contract MyAuction is Auction {
         
     }
     
-    function bid(uint _bidValue) public payable an_ongoing_auction override returns (bool) {
+    function bid(uint _bidValue) public an_ongoing_auction override returns (bool) {
       
         require(highestBidder != msg.sender, "You can't outbid yourself!");
 
