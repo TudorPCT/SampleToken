@@ -61,7 +61,7 @@ contract SampleToken {
     function approve(address _spender, uint256 _value) public returns (bool success) {
         require(_value >= 0, "Allowances must be positive");
         require(_spender != address(0), "Address cannot be 0");
-        
+
         _allowances[msg.sender][_spender] = _value;
 
         emit Approval(msg.sender, _spender, _value);
@@ -105,10 +105,11 @@ contract SampleTokenSale {
         require(msg.value >= _numberOfTokens * tokenPrice, "Not enough ether");
         uint256 change = msg.value - _numberOfTokens * tokenPrice;
 
-        require(tokenContract.balanceOf(address(this)) >= _numberOfTokens, "Not enough tokens. Recharge contract with tokens first");
-        require(tokenContract.transfer(msg.sender, _numberOfTokens));
+        require(tokenContract.allowance(owner, address(this)) >= _numberOfTokens, "Not enough allowance");
+        require(tokenContract.transferFrom(owner, msg.sender, _numberOfTokens));
         tokensSold += _numberOfTokens;
         payable(msg.sender).transfer(change);
+        
         emit Sell(msg.sender, _numberOfTokens);
     }
 
