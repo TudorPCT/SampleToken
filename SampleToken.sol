@@ -86,7 +86,6 @@ contract SampleTokenSale {
     SampleToken public tokenContract;
     uint256 public tokenPrice;
     address owner;
-
     uint256 public tokensSold;
 
     event Sell(address indexed _buyer, uint256 indexed _amount);
@@ -97,17 +96,28 @@ contract SampleTokenSale {
         tokenPrice = _tokenPrice;
     }
 
-    function buyTokens(uint256 _numberOfTokens) public payable {
-        require(msg.value == _numberOfTokens * tokenPrice);
-        require(tokenContract.balanceOf(address(this)) >= _numberOfTokens);
-        require(tokenContract.transfer(msg.sender, _numberOfTokens));
-        emit Sell(msg.sender, _numberOfTokens);
-        tokensSold += _numberOfTokens;
+    function changePrice(uint256 _newPrice) public onlyOwner {
+        tokenPrice = _newPrice;
     }
 
-    function endSale() public {
+    function buyTokens(uint256 _numberOfTokens) public payable {
+        require(msg.value >= _numberOfTokens * tokenPrice, "Not enough ether");
+        uint256 change = msg.value - _numberOfTokens * tokenPrice;
+
+        require(tokenContract.balanceOf(address(this)) >= _numberOfTokens, "Not enough tokens. Recharge contract with tokens first");
+        require(tokenContract.transfer(msg.sender, _numberOfTokens));
+        tokensSold += _numberOfTokens;
+        payable(msg.sender).transfer(change);
+        emit Sell(msg.sender, _numberOfTokens);
+    }
+
+    function endSale() public onlyOwner {
         require(tokenContract.transfer(owner, tokenContract.balanceOf(address(this))));
-        require(msg.sender == owner);
         payable(msg.sender).transfer(address(this).balance);
+    }
+
+    modifier onlyOwner(){
+        require(msg.sender == owner, "You are not the onwer of this contract. Only the owner can call this function.");
+        _;
     }
 }
