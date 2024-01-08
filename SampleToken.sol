@@ -60,6 +60,7 @@ contract SampleToken {
 
     function approve(address _spender, uint256 _value) public returns (bool success) {
         require(_value >= 0, "Allowances must be positive");
+        require(_spender != address(0), "Address cannot be 0");
         
         _allowances[msg.sender][_spender] = _value;
 
