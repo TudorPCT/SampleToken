@@ -25,9 +25,3 @@ Un aplicant la licitatie nu va putea licita decat o singura data (nu isi va pute
 Se va adauga o finalitate pentru licitatii: proprietarul contractului va putea retrage suma castigatoare a licitatiei, iar sumele celorlalti aplicanti vor fi returnate la distrugerea contractului daca acestia nu le-au retras pana in acel moment.
 
 Bonus: Se acorda pana la maxim 5 puncte bonus pentru imbunatatirea interfetei exemplului de DAPP din laboratorul 6. Aceasta ar trebui sa includa de exemplu suport pentru pornirea si accesarea a mai multe licitatii simultane, o pagina/sectiune dedicata achizitionarii de tokens si de verificare a balantei proprii, si evident acoperirea functionalitatilor pentru toate operatiile dintr-un contract de licitatie in interfata web (inclusiv retragerea sumelor licitate) precum si imbogatirea acesteia cu un design mai atractiv.
-
-Detalii organizare si termene
-
-Tema poate fi realizata in echipe de pana la 3 studenti. Predarea temei se va face prin e-mail - arhiva zip cu sursele Solidity sau link la un repository cu drepturi de acces, subiect: Tema 2 Blockchain ; seriile MSD, MISS la adresa emanuel.onica@uaic.ro ; seriile MSI si MOC2 la adresa andrei.arusoaie@uaic.ro - nu se accepta echipe mixte intre serii decat daca urmeaza laboratorul cu acelasi profesor (alternativ, pentru varianta cu link la repository acesta se poate transmite si prin mesaj privat pe Discord). 
-Data limita a predarii este 11 ianuarie inclusiv, fiind urmata de finalizarea evaluarii in cadrul laboratoarelor urmatoare (17-18 ianuarie), aceasta urmand a se desfasura online. O programare a echipelor pe sloturi orare si alte detalii vor fi anuntate in data de 15 ianuarie.
-Nota: In cazul implementarii bonusului, nu este necesara trimiterea pana la termenul de predare si a surselor ce tin strict de aplicatia web (.js, .html, .css, resurse grafice, etc) - partea aceasta va fi evaluata direct in cadrul laboratorului.

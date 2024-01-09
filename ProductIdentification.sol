@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.2 <0.9.0;
+pragma solidity ^0.8.2;
+import "SampleToken.sol";
 
-contract ProductIdentification {
+contract ProductIdentification2 {
     struct Product {
         address producerAddress;
         string name;
@@ -15,20 +16,22 @@ contract ProductIdentification {
     mapping (address => bool) private registeredProducers;
     mapping (uint => Product) private registeredProducts;
 
-    constructor(uint _registrationFee){
+    SampleToken public sampleToken; // Reference to your SampleToken contract
+
+    constructor(uint _registrationFee, address _sampleTokenAddress){
         owner = msg.sender;
         registrationFee = _registrationFee;
         nextProductId = 1;
+        sampleToken = SampleToken(_sampleTokenAddress);
     }
 
-
     modifier onlyOwner(){
-        require(msg.sender == owner, "You are not the onwer of this contract. Only the owner can call this function.");
+        require(msg.sender == owner, "You are not the owner of this contract. Only the owner can call this function.");
         _;
     }
 
     modifier onlyProducer() {
-        require(registeredProducers[msg.sender], "You are not registred in this contract. Please register before executing any other actions.");
+        require(registeredProducers[msg.sender], "You are not registered in this contract. Please register before executing any other actions.");
         _;
     }
 
@@ -37,10 +40,7 @@ contract ProductIdentification {
     }
 
     function registerProducer() public payable {
-        require(msg.value >= registrationFee, "Insufficient registration fee");
-        if (msg.value > registrationFee) {
-            payable(msg.sender).transfer(msg.value - registrationFee);
-        }
+        require(sampleToken.transferFrom(msg.sender, address(this), registrationFee), "Token transfer failed");
         registeredProducers[msg.sender] = true;
     }
 
@@ -48,7 +48,7 @@ contract ProductIdentification {
         registeredProducts[nextProductId++] = Product(msg.sender, _name, _volume);
     }
 
-    function isProducerRegistred(address _producerAddress) public view returns (bool) {
+    function isProducerRegistered(address _producerAddress) public view returns (bool) {
         return registeredProducers[_producerAddress];
     }
 
