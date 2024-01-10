@@ -89,6 +89,8 @@ contract MyAuction is Auction {
     }
     
     function bid(uint _bidValue) public an_ongoing_auction override returns (bool) {
+
+        // require(bids[msg.sender] > 0, "You can't overwrite your bid!");
       
         require(highestBidder != msg.sender, "You can't outbid yourself!");
 
